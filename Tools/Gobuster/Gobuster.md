@@ -23,5 +23,5 @@ With the following flags (dir command):
 An example of gobuster command:
 
 ```zsh
-gobuster dir -u http://10.10.11.224:55555 -w /usr/share/dirbuster/wordlists/directory-list-2.3-small.txt -x php,html
+gobuster dir -u http://<SERVER_IP>:<PORT> -w /usr/share/dirbuster/wordlists/directory-list-2.3-small.txt -x php,html
 ```

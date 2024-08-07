@@ -21,5 +21,5 @@ Used to Scan open ports on an IP. Has the following flags:
 An example of nmap command: 
 
 ```zsh
-nmap -p- --min-rate 1000 -sV -sC WW.XXX.YY.ZZZ
+nmap -p- --min-rate 1000 -sV -sC <SERVER_IP>
 ```
