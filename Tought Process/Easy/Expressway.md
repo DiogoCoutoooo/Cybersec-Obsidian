@@ -8,7 +8,7 @@
 <div style="display: flex; gap: 20px; margin-top: 12px; font-size: 13px;">
 <span><span style="color: #9acd32;">💻</span> <b>OS:</b> Linux</span>
 <span><span style="color: #9acd32;">🔥</span> <b>Diff:</b> Easy</span>
-<span><span style="color: #9acd32;">📅</span> <b>Pwned:</b> 21 Feb 2026</span>
+<span><span style="color: #9acd32;">📅</span> <b>Pwned:</b> 18 Feb 2026</span>
 </div>
 </div>
 <div style="text-align: right;">
