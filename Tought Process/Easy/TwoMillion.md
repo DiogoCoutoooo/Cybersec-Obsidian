@@ -4,10 +4,7 @@ os: Linux
 difficulty: Easy
 status: USER PWNED
 pwn_date: 24 Feb 2026
-summary: |-
-  Analysis of a minified JavaScript file revealed an internal API used for invite code generation. Deobfuscating the code and making a POST request provided a Base64-encoded invite string. After registering and gaining access to the dashboard, an API enumeration revealed an administrative endpoint at /api/v1/admin/settings/update. By manipulating the JSON parameters in a PUT request, the current user account was elevated to administrative status.
-  This provided access to the /api/v1/admin/vpn/generate endpoint, which was found to be vulnerable to OS Command Injection via the username parameter. Exploiting this vulnerability yielded a reverse shell as www-data. Local enumeration identified cleartext database credentials in a .env file. Password reuse of these credentials allowed for a successful SSH login as the admin user, providing access to the user flag.
-  TODO: root flag
+summary: "Analysis of a minified JavaScript file revealed an internal API used for invite code generation. Deobfuscating the code and making a POST request provided a Base64-encoded invite string. After registering and gaining access to the dashboard, an API enumeration revealed an administrative endpoint at /api/v1/admin/settings/update. By manipulating the JSON parameters in a PUT request, the current user account was elevated to administrative status. This provided access to the /api/v1/admin/vpn/generate endpoint, which was found to be vulnerable to OS Command Injection via the username parameter. Exploiting this vulnerability yielded a reverse shell as www-data. Local enumeration identified cleartext database credentials in a .env file. Password reuse of these credentials allowed for a successful SSH login as the admin user, providing access to the user flag. TODO: root flag"
 matrix_enum: 6
 matrix_real: 6
 matrix_cve: 6
