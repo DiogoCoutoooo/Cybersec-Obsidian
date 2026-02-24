@@ -6,10 +6,10 @@ status: PWNED
 pwn_date: 18 Feb 2026
 summary: Exposed IKE port allowed for aggressive mode sniffing, leading to the crack of a Pre-Shared Key (PSK). This provided access to a VPN tunnel where internal services were reachable. After pivoting, a cleartext password was found in a configuration file, granting SSH access. Final privilege escalation was achieved by exploiting a misconfigured SUID binary to execute commands as root.
 matrix_enum: 8
-matrix_real: 7
-matrix_cve: 5
-matrix_custom: 4
-matrix_ctf: 6
+matrix_real: 8.5
+matrix_cve: 2
+matrix_custom: 3
+matrix_ctf: 6.5
 ---
 
 <div style="background: linear-gradient(135deg, #0d1117 0%, #16213e 100%); padding: 25px; border-radius: 15px; border: 1px solid #9acd32; font-family: 'Inter', sans-serif; color: white; display: flex; align-items: center; justify-content: space-between; gap: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-height: 190px;">
@@ -43,7 +43,7 @@ matrix_ctf: 6
             <text x="45" y="145" font-size="9" fill="#aaa" text-anchor="middle" font-weight="bold">CUSTOM</text>
             <text x="18" y="65" font-size="9" fill="#aaa" text-anchor="end" font-weight="bold">CTF</text>
             
-            <polygon points="80,46.599999999999994 111.95549894751716,74.61702898900177 94.10684605501936,104.41640786499875 68.71452315598452,100.533126291999 52.60957233069958,76.10031056200152" fill="#9acd3233" stroke="#9acd32" stroke-width="2.5" stroke-linejoin="round" />
+            <polygon points="80,46.599999999999994 118.80310586484225,72.39210662950215 85.64273842200774,92.7665631459995 71.53589236698839,96.64984471899925 50.3270366915912,75.35866977550164" fill="#9acd3233" stroke="#9acd32" stroke-width="2.5" stroke-linejoin="round" />
             <circle cx="80" cy="85" r="2.5" fill="#9acd32" />
         </svg>
     </div>

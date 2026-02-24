@@ -5,11 +5,11 @@ difficulty: Easy
 status: PWNED
 pwn_date: 21 Feb 2026
 summary: Exposed IDOR vulnerability in the web dashboard allowed for the download of other users' network captures. Analysis of a specific PCAP file revealed cleartext FTP credentials. After gaining a shell, local enumeration showed that Python 3.8 was configured with dangerous capabilities (cap_setuid,cap_net_bind_service+eip). This misconfiguration allowed for an immediate privilege escalation to root by manipulating the process UID via a simple python script.
-matrix_enum: 6
+matrix_enum: 5
 matrix_real: 4
-matrix_cve: 4
-matrix_custom: 8
-matrix_ctf: 9
+matrix_cve: 4.5
+matrix_custom: 5.5
+matrix_ctf: 6
 ---
 
 <div style="background: linear-gradient(135deg, #0d1117 0%, #16213e 100%); padding: 25px; border-radius: 15px; border: 1px solid #9acd32; font-family: 'Inter', sans-serif; color: white; display: flex; align-items: center; justify-content: space-between; gap: 5px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); min-height: 190px;">
@@ -43,7 +43,7 @@ matrix_ctf: 9
             <text x="45" y="145" font-size="9" fill="#aaa" text-anchor="middle" font-weight="bold">CUSTOM</text>
             <text x="18" y="65" font-size="9" fill="#aaa" text-anchor="end" font-weight="bold">CTF</text>
             
-            <polygon points="80,56.2 98.26028511286695,79.06687370800101 91.28547684401549,100.533126291999 57.42904631196903,116.066252583998 38.91435849604936,71.65046584300228" fill="#9acd3233" stroke="#9acd32" stroke-width="2.5" stroke-linejoin="round" />
+            <polygon points="80,61 98.26028511286695,79.06687370800101 92.69616144951742,102.47476707849887 64.48246933947871,106.35804865149862 52.60957233069958,76.10031056200152" fill="#9acd3233" stroke="#9acd32" stroke-width="2.5" stroke-linejoin="round" />
             <circle cx="80" cy="85" r="2.5" fill="#9acd32" />
         </svg>
     </div>
@@ -70,7 +70,6 @@ Nmap done: 1 IP address (1 host up) scanned in 115.82 seconds
 sudo nmap -sS --top-ports 100 -n -Pn 10.129.1.93  
 ```
 ```
-Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-21 06:37 WET  
 Nmap scan report for 10.129.1.93  
 Host is up (0.046s latency).  
 Not shown: 97 closed tcp ports (reset)  
@@ -88,11 +87,11 @@ We can see that we have an ftp, ssh, and http port opened. Lets check the http f
 
 It's a dashboard webapp. After analyzing the pages for a bit, we see that the "Security Snapshot" seems odd, since it's the only one that gives us a file (3.pcap):
 
-![[Cap_3.png]]
+![[Cap_2.png]]
 
 The link of the page is "/3", what if we change it to "/0"?:
 
-![[Cap_2.png]]
+![[Cap_3.png]]
 
 Looks like we are onto something. Downloading this file and dumping it into the terminal, we see the following:
 
